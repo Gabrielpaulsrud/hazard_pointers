@@ -26,8 +26,8 @@ int pop(lf_stack_t* stack){
     int key;
     
     old = atomic_load(&stack->top);
-    do {
-    } while(old != NULL && !atomic_compare_exchange_weak(&stack->top, &old, old->next));
+    while(old != NULL && !atomic_compare_exchange_weak(&stack->top, &old, old->next))
+    ;
     if (old == NULL) {
         return 0;
     }
@@ -36,6 +36,17 @@ int pop(lf_stack_t* stack){
     free(old);
 #endif
     return key;
+}
+
+//Not lock free
+unsigned long sum(lf_stack_t* stack){
+    unsigned long sum = 0;
+    elem_t* current = stack->top;
+    while (current != NULL) {
+        sum += (unsigned long) current->key;
+        current = current->next;
+    }
+    return sum;
 }
 
 lf_stack_t* init_stack(){

@@ -11,7 +11,8 @@ typedef struct lf_stack_t {
 } lf_stack_t;
 
 void push(lf_stack_t* stack, int key);
-elem_t* pop(lf_stack_t* stack);
+int pop(lf_stack_t* stack);
+unsigned long sum(lf_stack_t* stack);
 lf_stack_t* init_stack();
 
 #endif
