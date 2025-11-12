@@ -1,6 +1,3 @@
-#ifndef LOCK_FREE_STACK_H
-#define LOCK_FREE_STACK_H
-
 typedef struct elem_t {
     int key;
     struct elem_t* next;
@@ -12,7 +9,5 @@ typedef struct lf_stack_t {
 
 void push(lf_stack_t* stack, int key);
 int pop(lf_stack_t* stack);
-unsigned long sum(lf_stack_t* stack);
+unsigned long sum(lf_stack_t* stack); //Not lock free
 lf_stack_t* init_stack();
-
-#endif
