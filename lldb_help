@@ -1,2 +1,0 @@
-// atomic load
-expr -l c -- pointer_t t = __c11_atomic_load(&s->top, __ATOMIC_RELAXED); t
