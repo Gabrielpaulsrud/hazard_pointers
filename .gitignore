@@ -1,0 +1,3 @@
+*.o
+lldb_help
+*.out
