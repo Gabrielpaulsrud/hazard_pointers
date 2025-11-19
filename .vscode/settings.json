@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "__node_handle": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "stack": "c",
+        "stdatomic.h": "c"
+    },
+    "files.watcherExclude": {
+        "**/target": true
     }
 }

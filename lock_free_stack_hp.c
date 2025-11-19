@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdatomic.h>
-#include <hp.h>
+#include "hp.h"
 
 #define FREE 1
 
@@ -24,16 +24,35 @@ void push(lf_stack_t* stack, int key){
 
 int pop(lf_stack_t* stack, hp_thread_data_t* hpd){
     elem_t* old;
+    elem_t* next;
     int key;
-    
-    old = atomic_load(&stack->top);
-    while(old != NULL && !atomic_compare_exchange_weak(&stack->top, &old, old->next))
-    ;
-    if (old == NULL) {
-        return 0;
+    while(1){
+        old = atomic_load(&stack->top);
+        if (old == NULL) {
+            return 0;
+        }
+        hpd->hps[hpd->idx] = old;
+        if(hpd->hps[hpd->idx] != stack->top) {
+            continue;
+        }
+        next = old->next;
+        hpd->hps[hpd->idx+1] = next;
+
+        //Why would this be needed?
+        if(hpd->hps[hpd->idx] != stack->top) {
+            continue;
+        }
+        
+        if (atomic_compare_exchange_weak(&stack->top, &old, old->next)){
+            break;
+        }
+
     }
+    
     key = old->key;
-    retire();
+    retireNode(old, hpd);
+    hpd->hps[hpd->idx] = NULL;
+    hpd->hps[hpd->idx+1] = NULL;
     return key;
 }
 

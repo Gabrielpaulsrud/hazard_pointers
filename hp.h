@@ -1,17 +1,17 @@
-struct hp_t{
-    void* p;
-};
-
-typedef struct hp_t hp_t;
+#include "linked_list.h"
 
 struct hp_thread_data_t{
-    hp_t* hps;
-    void **rlist;
-    int i; //index of thread
+    void** hps;
+    linked_list_t* rlist;
+    int idx;
     int r;
     int max_r;
+    int K;
+    int n_threads;
 };
 
 typedef struct hp_thread_data_t hp_thread_data_t;
 
-hp_t* init_hp(int N, int K);
+void* init_hp(int N, int K);
+
+void retireNode(void* p, hp_thread_data_t* hpd);
