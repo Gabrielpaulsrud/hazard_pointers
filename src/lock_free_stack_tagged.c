@@ -48,7 +48,7 @@ void push(lf_stack_t* s, int key) {
 }
 
 int pop(lf_stack_t* s, void* arg){
-    tagged_thread_data_t* ttd = arg;
+    GSList** rlist = arg;
     pointer_t old;
     pointer_t new;
     
@@ -64,9 +64,10 @@ int pop(lf_stack_t* s, void* arg){
     if (old.node == NULL) {
         return 0;
     }
-    // key = old.node -> key;
-    
-    ttd->rlist = g_slist_prepend(ttd->rlist, old.node);
+    // int key = old.node -> key;
+    // free(old.node);
+    // return key;
+    *rlist = g_slist_prepend(*rlist, old.node);
     
     return old.node -> key;
 }

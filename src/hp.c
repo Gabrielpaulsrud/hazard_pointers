@@ -59,3 +59,4 @@ void init_hpd(hp_thread_data_t* hpd, void** hps, GSList* rlist, int idx, int r, 
     hpd->K = K;
     hpd->n_threads = n_threads;
 }
+

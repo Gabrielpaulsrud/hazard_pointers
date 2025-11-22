@@ -1,4 +1,4 @@
-build/experiment.o: experiment.c include/hp.h \
+build/src/thread_data_hc.o: src/thread_data_hc.c include/hp.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/galloca.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/gtypes.h \
@@ -83,7 +83,7 @@ build/experiment.o: experiment.c include/hp.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/deprecated/grel.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/deprecated/gthread.h \
   /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/glib-autocleanups.h \
-  include/lock_free_stack.h include/tagged.h include/thread_data.h
+  include/thread_data.h
 include/hp.h:
 /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib.h:
 /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/galloca.h:
@@ -169,6 +169,4 @@ include/hp.h:
 /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/deprecated/grel.h:
 /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/deprecated/gthread.h:
 /opt/homebrew/Cellar/glib/2.86.2/include/glib-2.0/glib/glib-autocleanups.h:
-include/lock_free_stack.h:
-include/tagged.h:
 include/thread_data.h:

@@ -17,14 +17,16 @@ LDFLAGS  := $(THREADS) $(GLIB_LIBS)
 
 STACK_SRCS := $(SRC_DIR)/lock_free_stack_$(STACK).c
 STACK_DEFS :=
+STACK_SRCS += $(SRC_DIR)/hp.c
 
 ifeq ($(STACK),hp)
-STACK_DEFS += -DUSE_HP_STACK
-STACK_SRCS += $(SRC_DIR)/hp.c
+# STACK_DEFS += -DUSE_HP_STACK
+STACK_SRCS += $(SRC_DIR)/thread_data_hc.c
 endif
 
 ifeq ($(STACK),tagged)
-STACK_DEFS += -DUSE_TAGGED_STACK
+# STACK_DEFS += -DUSE_TAGGED_STACK
+STACK_SRCS += $(SRC_DIR)/thread_data_tagged.c
 # STACK_SRCS += $(SRC_DIR)/h.c
 endif
 
