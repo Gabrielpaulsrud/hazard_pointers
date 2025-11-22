@@ -4,7 +4,15 @@
         "stdio.h": "c",
         "stdbool.h": "c",
         "stack": "c",
-        "stdatomic.h": "c"
+        "stdatomic.h": "c",
+        "stdlib.h": "c",
+        "__split_buffer": "c",
+        "array": "c",
+        "deque": "c",
+        "queue": "c",
+        "string": "c",
+        "string_view": "c",
+        "vector": "c"
     },
     "files.watcherExclude": {
         "**/target": true

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdatomic.h>
+#include "tagged.h"
 
 #define FREE 1
 
@@ -46,8 +47,8 @@ void push(lf_stack_t* s, int key) {
     } while (!atomic_compare_exchange_weak(&s->top, &old, new));
 }
 
-int pop(lf_stack_t* s){
-    int key;
+int pop(lf_stack_t* s, void* arg){
+    tagged_thread_data_t* ttd = arg;
     pointer_t old;
     pointer_t new;
     
@@ -63,9 +64,11 @@ int pop(lf_stack_t* s){
     if (old.node == NULL) {
         return 0;
     }
-    key = old.node -> key;
-    free(old.node);
-    return key;
+    // key = old.node -> key;
+    
+    ttd->rlist = g_slist_prepend(ttd->rlist, old.node);
+    
+    return old.node -> key;
 }
 
 //Not lock free
@@ -80,7 +83,7 @@ unsigned long sum(lf_stack_t* stack){
     return sum;
 }
 
-lf_stack_t* init_stack() {
+lf_stack_t* init_stack(void){
     lf_stack_t* stack = calloc(1, sizeof(lf_stack_t));
     pointer_t p = { .node = NULL, .num = 0 };
     atomic_init(&stack->top, p);

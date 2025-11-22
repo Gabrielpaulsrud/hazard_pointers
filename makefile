@@ -1,37 +1,65 @@
-CC      = gcc
-CFLAGS  = -Wall -Wextra -std=c11 -O2 -pthread
-TARGET  = experiment
+CC          := gcc
+STACK       ?= plain
+SRC_DIR     := src
+BUILD_DIR   := build
+TARGET_NAME := experiment_$(STACK)
+TARGET      := $(BUILD_DIR)/$(TARGET_NAME)
 
-# Pick stack impl: plain (default) or numbered
-#STACK ?= plain
-STACK ?= tagged
-STACK_SRC = lock_free_stack_$(STACK).c
+WARNINGS := -Wall -Wextra -Wpedantic
+THREADS  := -pthread
+SANFLAGS := -fsanitize=address -fno-omit-frame-pointer
 
-OBJS = $(TARGET).o $(STACK_SRC:.c=.o)
+GLIB_CFLAGS := $(shell pkg-config --cflags glib-2.0)
+GLIB_LIBS   := $(shell pkg-config --libs glib-2.0)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+CFLAGS   := -std=c11 $(WARNINGS) -O2 -MMD -MP $(THREADS) -Iinclude $(GLIB_CFLAGS)
+LDFLAGS  := $(THREADS) $(GLIB_LIBS)
 
-# experiment depends on the public API
-$(TARGET).o: $(TARGET).c lock_free_stack.h
-	$(CC) $(CFLAGS) -c $< -o $@
+STACK_SRCS := $(SRC_DIR)/lock_free_stack_$(STACK).c
+STACK_DEFS :=
 
-# either stack implementation also depends on the header
-lock_free_stack_%.o: lock_free_stack_%.c lock_free_stack.h
-	$(CC) $(CFLAGS) -c $< -o $@
+ifeq ($(STACK),hp)
+STACK_DEFS += -DUSE_HP_STACK
+STACK_SRCS += $(SRC_DIR)/hp.c
+endif
+
+ifeq ($(STACK),tagged)
+STACK_DEFS += -DUSE_TAGGED_STACK
+# STACK_SRCS += $(SRC_DIR)/h.c
+endif
+
+SRCS := experiment.c $(STACK_SRCS)
+OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
+
+.PHONY: all run clean debug dbg asan
+
+all: $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET)
+	$(TARGET) $(ARGS)
 
-clean:
-	rm -f $(TARGET) *.o
-
-.PHONY: debug dbg
-
-# Build with debug flags
+debug: CFLAGS := $(filter-out -O2,$(CFLAGS))
 debug: CFLAGS += -O0 -g -fno-omit-frame-pointer
 debug: clean $(TARGET)
 
-# Build (debug) then run LLDB
 dbg: debug
-	lldb ./$(TARGET)
+	lldb $(TARGET)
+
+asan: CFLAGS := $(filter-out -O2,$(CFLAGS))
+asan: CFLAGS += -O1 -g $(SANFLAGS)
+asan: LDFLAGS += -fsanitize=address
+asan: clean $(TARGET)
+
+$(TARGET): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(STACK_DEFS) $^ -o $@ $(LDFLAGS)
+
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(STACK_DEFS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+-include $(DEPS)
