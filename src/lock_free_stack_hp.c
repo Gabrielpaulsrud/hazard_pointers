@@ -14,7 +14,8 @@ typedef struct lf_stack_t {
     _Atomic(elem_t*) top;
 } lf_stack_t;
 
-void push(lf_stack_t* stack, int key){
+void push(lf_stack_t* stack, int key, void* arg){
+    (void)arg;
     elem_t* elem = malloc(sizeof(elem_t));
     elem->key=key;
     elem->next = atomic_load(&stack->top);
@@ -40,9 +41,9 @@ int pop(lf_stack_t* stack, void* arg){
         hpd->hps[hpd->idx+1] = next;
 
         //Why would this be needed?
-        if(hpd->hps[hpd->idx] != stack->top) {
-            continue;
-        }
+        // if(hpd->hps[hpd->idx] != stack->top) {
+        //     continue;
+        // }
         
         if (atomic_compare_exchange_weak(&stack->top, &old, old->next)){
             break;

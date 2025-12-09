@@ -10,8 +10,8 @@
 
 #define TEST
 
-int PUSHES = 100000;
-int POPS =   100000;
+int PUSHES = 10000;
+int POPS =   10000;
 int n_push_threads = 4;
 int n_pop_threads = 4;
 int MAX_NODES_IN_RETIRE = 1000;
@@ -34,7 +34,7 @@ void* push_task(void* arg){
     thread_arg_t* args = (thread_arg_t*)arg;
     lf_stack_t* stack = args->stack;
     for (int i = 0; i < PUSHES; i++) {
-        push(stack, i);
+        push(stack, i, args->impl_data);
     }
     return NULL;
 }
@@ -106,10 +106,11 @@ int main(void){
     for (int i = 0; i < n_push_threads; i++) {
         pthread_join(push_threads[i], NULL);
     }
-
     for (int i = 0; i < n_pop_threads; i++) {
         pthread_join(pop_threads[i], NULL);
     }
+    
+
 
     #ifdef TEST
     unsigned long remainder = sum(stack);
