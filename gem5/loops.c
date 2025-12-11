@@ -4,7 +4,7 @@
 int main() {
     volatile uint64_t sum = 0;
 
-    for (uint64_t i = 0; i < 100000000ULL; i++) {
+    for (uint64_t i = 0; i < 100ULL; i++) {
         sum += (i & 1);
     }
 
