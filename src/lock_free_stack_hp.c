@@ -5,28 +5,28 @@
 
 #define FREE 1
 
-typedef struct elem_t {
+typedef struct node_t {
     int key;
-    struct elem_t* next;
-} elem_t;
+    struct node_t* next;
+} node_t;
 
 typedef struct lf_stack_t {
-    _Atomic(elem_t*) top;
+    _Atomic(node_t*) top;
 } lf_stack_t;
 
 void push(lf_stack_t* stack, int key, void* arg){
     (void)arg;
-    elem_t* elem = malloc(sizeof(elem_t));
-    elem->key=key;
-    elem->next = atomic_load(&stack->top);
-    while(!atomic_compare_exchange_weak(&stack->top, &elem->next, elem))
+    node_t* a = malloc(sizeof(node_t));
+    a->key=key;
+    a->next = atomic_load(&stack->top);
+    while(!atomic_compare_exchange_weak(&stack->top, &a->next, a))
         ;
 }
 
 int pop(lf_stack_t* stack, void* arg){
     hp_thread_data_t* hpd = arg;
-    elem_t* old;
-    elem_t* next;
+    node_t* old;
+    node_t* next;
     int key;
     while(1){
         old = atomic_load(&stack->top);
@@ -34,18 +34,19 @@ int pop(lf_stack_t* stack, void* arg){
             return 0;
         }
         hpd->hps[hpd->idx] = old;
-        if(hpd->hps[hpd->idx] != stack->top) {
+        if(hpd->hps[hpd->idx] != atomic_load(&stack->top)) {
             continue;
         }
         next = old->next;
         hpd->hps[hpd->idx+1] = next;
 
         //Why would this be needed?
-        // if(hpd->hps[hpd->idx] != stack->top) {
-        //     continue;
-        // }
+        // It says in the paper...
+        if(hpd->hps[hpd->idx] != atomic_load(&stack->top)) {
+            continue;
+        }
         
-        if (atomic_compare_exchange_weak(&stack->top, &old, old->next)){
+        if (atomic_compare_exchange_weak(&stack->top, &old, next)){
             break;
         }
 
@@ -61,7 +62,7 @@ int pop(lf_stack_t* stack, void* arg){
 //Not lock free
 unsigned long sum(lf_stack_t* stack){
     unsigned long sum = 0;
-    elem_t* current = stack->top;
+    node_t* current = stack->top;
     while (current != NULL) {
         sum += (unsigned long) current->key;
         current = current->next;

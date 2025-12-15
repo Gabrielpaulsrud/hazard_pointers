@@ -12,7 +12,7 @@ SANFLAGS := -fsanitize=address -fno-omit-frame-pointer
 GLIB_CFLAGS := $(shell pkg-config --cflags glib-2.0)
 GLIB_LIBS   := $(shell pkg-config --libs glib-2.0)
 
-CFLAGS   := -std=c11 $(WARNINGS) -O2 -MMD -MP $(THREADS) -Iinclude $(GLIB_CFLAGS)
+CFLAGS   := -std=c11 $(WARNINGS) -O3 -MMD -MP $(THREADS) -Iinclude $(GLIB_CFLAGS)
 LDFLAGS  := $(THREADS) $(GLIB_LIBS)
 
 STACK_SRCS := $(SRC_DIR)/lock_free_stack_$(STACK).c
@@ -35,6 +35,14 @@ OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
 .PHONY: all run clean debug dbg asan
+.PHONY: x86
+
+# Build for gem5: static x86_64 Linux binary
+x86: CC := clang
+x86: CFLAGS := -std=c11 $(WARNINGS) -O2 -MMD -MP -Iinclude $(GLIB_CFLAGS) --target=x86_64-linux-gnu
+x86: LDFLAGS :=
+x86:
+	$(CC) $(CFLAGS) $(STACK_DEFS) -static $(SRCS) -o build/experiment_$(STACK)_x86
 
 all: $(TARGET)
 

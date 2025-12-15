@@ -10,12 +10,12 @@
 
 #define TEST
 
-int PUSHES = 10000;
-int POPS =   10000;
-int n_push_threads = 4;
-int n_pop_threads = 4;
-int MAX_NODES_IN_RETIRE = 1000;
-int K = 2; //Max number of hazard pointers used by a thread
+int PUSHES = 100000;
+int POPS =   100000;
+int n_push_threads = 400;
+int n_pop_threads = 400;
+static const int MAX_NODES_IN_RETIRE = 1000;
+static const int K = 2; //Max number of hazard pointers used by a thread
 
 typedef struct {
     lf_stack_t* stack;
@@ -62,7 +62,6 @@ int main(void){
     _Atomic unsigned long pop_sum = 0;
     void** hp_record = init_hp(n_push_threads + n_pop_threads, K);
 
-    double start_time = monotonic_seconds();
     // Set thread args
     for (int i = 0; i < n_push_threads + n_pop_threads; i++){
         thread_args[i].stack = stack;
@@ -78,21 +77,9 @@ int main(void){
         };
 
         thread_args[i].impl_data = create_impl_specific_thread_data(init);
-        
-        // thread_args[i].stack_specific_data = create_stack_data(hp_record, rlist, i*K, 0, MAX_NODES_IN_RETIRE, K, n_push_threads + n_pop_threads);
-        // #ifdef USE_HP_STACK
-        //     hp_thread_data_t* hpd = calloc(1, sizeof(hp_thread_data_t));
-        //     void* rlist = calloc(MAX_NODES_IN_RETIRE, sizeof(void*));
-        //     init_hpd(hpd, hp_record, rlist, i*K, 0, MAX_NODES_IN_RETIRE, K, n_push_threads + n_pop_threads);
-        //     thread_args[i].stack_specific_data = hpd;
-        // #endif
-        // #ifdef USE_TAGGED_STACK
-        //     tagged_thread_data_t* ttd = calloc(1, sizeof(tagged_thread_data_t));
-        //     ttd->rlist = NULL;  // empty GSList
-        //     thread_args[i].stack_specific_data = ttd;   // reuse hpd field for tagged case
-        // #endif
-
     }
+
+    double start_time = monotonic_seconds();
 
     for (int i = 0; i < n_push_threads; i++) {
         pthread_create(&push_threads[i], NULL, push_task, &thread_args[i]);
@@ -110,7 +97,6 @@ int main(void){
         pthread_join(pop_threads[i], NULL);
     }
     
-
 
     #ifdef TEST
     unsigned long remainder = sum(stack);

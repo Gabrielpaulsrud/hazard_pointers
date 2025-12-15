@@ -22,8 +22,7 @@ void scan(hp_thread_data_t* hpd){
 
     //Stage 2
     hpd->r = 0;
-    GSList* tmp_list = g_slist_copy(hpd->rlist);
-    g_slist_free(hpd->rlist);
+    GSList* tmp_list = hpd->rlist;
     hpd->rlist = NULL;
 
     for (GSList* it = tmp_list; it != NULL; it = it->next){

@@ -3,8 +3,6 @@
 #include <stdatomic.h>
 #include "tagged.h"
 
-#define FREE 1
-
 typedef struct node_t {
     int key;
     struct node_t* next;
@@ -17,8 +15,6 @@ typedef struct pointer_t {
 
 typedef struct lf_stack_t {
     _Atomic pointer_t top;
-    // atomic_long num;
-    // GSList* rlist;
 } lf_stack_t;
 
 
@@ -71,7 +67,6 @@ int pop(lf_stack_t* s, void* arg){
     pointer_t new;
     
     old = atomic_load(&s->top);
-    // new.num = atomic_fetch_add(&s->num, 1);
 
     do {
         if (old.node == NULL)
@@ -79,9 +74,7 @@ int pop(lf_stack_t* s, void* arg){
         new.num = old.num+1;
         new.node = old.node->next;
     } while(!atomic_compare_exchange_weak(&s->top, &old, new));
-    // *rlist = g_slist_prepend(*rlist, old.node);
     *rlist = g_slist_prepend(*rlist, old.node);
-    // printf("ok");
     return old.node -> key;
 }
 
@@ -101,8 +94,5 @@ lf_stack_t* init_stack(void){
     lf_stack_t* stack = calloc(1, sizeof(lf_stack_t));
     pointer_t p = { .node = NULL, .num = 0 };
     atomic_init(&stack->top, p);
-    // atomic_init(&stack->num, 0);
-    // stack->rlist = calloc(1, sizeof(GSList));
-
     return stack;
 }
