@@ -74,7 +74,7 @@ int pop(lf_stack_t* s, void* arg){
         new.num = old.num+1;
         new.node = old.node->next;
     } while(!atomic_compare_exchange_weak(&s->top, &old, new));
-    *rlist = g_slist_prepend(*rlist, old.node);
+    //*rlist = g_slist_prepend(*rlist, old.node);
     return old.node -> key;
 }
 

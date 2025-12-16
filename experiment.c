@@ -12,8 +12,8 @@
 
 int PUSHES = 100000;
 int POPS =   100000;
-int n_push_threads = 4;
-int n_pop_threads = 4;
+int n_push_threads = 1;
+int n_pop_threads = 0;
 static const int MAX_NODES_IN_RETIRE = 1000;
 static const int K = 2; //Max number of hazard pointers used by a thread
 
