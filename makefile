@@ -38,11 +38,11 @@ DEPS := $(OBJS:.o=.d)
 .PHONY: x86
 
 # Build for gem5: static x86_64 Linux binary
-x86: CC := clang
-x86: CFLAGS := -std=c11 $(WARNINGS) -O2 -MMD -MP -Iinclude $(GLIB_CFLAGS) --target=x86_64-linux-gnu
-x86: LDFLAGS :=
-x86:
-	$(CC) $(CFLAGS) $(STACK_DEFS) -static $(SRCS) -o build/experiment_$(STACK)_x86
+.PHONY: x86
+
+# Build on an x86_64 Linux machine for gem5 (adds libatomic for 16-byte atomics)
+x86: LDFLAGS := $(LDFLAGS) -latomic
+x86: $(TARGET)
 
 all: $(TARGET)
 
