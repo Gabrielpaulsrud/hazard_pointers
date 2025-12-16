@@ -1,34 +1,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdatomic.h>
-#include "tagged.h"
+// #include "tagged.h"
+#include <string.h>
+#include "lock_free_stack.h"
 
-typedef struct node_t {
-    int key;
-    struct node_t* next;
-} node_t;
 
-typedef struct pointer_t {
-    node_t* node;
-    long num;
-} pointer_t;
 
 typedef struct lf_stack_t {
     _Atomic pointer_t top;
 } lf_stack_t;
 
 
-node_t* new_node(GSList** rlist, int key) {
+node_t* new_node(node_t** rlist, int key) {
     // First try to reuse a node from the stack-specific free list (rlist)
     if (*rlist != NULL) {
-        GSList* head = *rlist;
-        node_t* a = (node_t*)head->data;
+        node_t* recycled = *rlist;
+        // node_t* a = (node_t*)head->data;
         // Remove the head element from the GSList
-        *rlist = g_slist_delete_link(*rlist, head);
+        // *rlist = g_slist_delete_link(*rlist, head);
+        *rlist = recycled->next;
         // Reinitialize the recycled node
-        a->key = key;
-        a->next = NULL;
-        return a;
+        recycled->key = key;
+        recycled->next = NULL;
+        return recycled;
     }
 
     // Free list empty: fall back to fresh allocation
@@ -43,7 +38,7 @@ node_t* new_node(GSList** rlist, int key) {
 }
 
 void push(lf_stack_t* s, int key, void* arg) {
-    GSList** rlist = (GSList**)arg;
+    node_t** rlist = (node_t**)arg;
     node_t* a;
     pointer_t old;
     pointer_t new;
@@ -61,7 +56,7 @@ void push(lf_stack_t* s, int key, void* arg) {
 }
 
 int pop(lf_stack_t* s, void* arg){
-    GSList** rlist = (GSList**)arg;
+    node_t** rlist = (node_t**)arg;
 
     pointer_t old;
     pointer_t new;
@@ -74,7 +69,9 @@ int pop(lf_stack_t* s, void* arg){
         new.num = old.num+1;
         new.node = old.node->next;
     } while(!atomic_compare_exchange_weak(&s->top, &old, new));
-    //*rlist = g_slist_prepend(*rlist, old.node);
+    // *rlist = g_slist_prepend(*rlist, old.node);
+    old.node->next = *rlist;
+    *rlist = old.node;
     return old.node -> key;
 }
 

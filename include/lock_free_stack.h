@@ -1,7 +1,12 @@
-typedef struct elem_t {
+typedef struct node_t {
     int key;
-    struct elem_t* next;
-} elem_t;
+    struct node_t* next;
+} node_t;
+
+typedef struct pointer_t {
+    node_t* node;
+    long num;
+} pointer_t;
 
 typedef struct lf_stack_t lf_stack_t;
 

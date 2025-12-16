@@ -17,11 +17,13 @@ LDFLAGS  := $(THREADS) $(GLIB_LIBS) $(LDFLAGS_EXTRA)
 
 STACK_SRCS := $(SRC_DIR)/lock_free_stack_$(STACK).c
 STACK_DEFS :=
+UTILS_SRCS :=
 
 ifeq ($(STACK),hp)
 STACK_SRCS += $(SRC_DIR)/hp.c
 # STACK_DEFS += -DUSE_HP_STACK
 STACK_SRCS += $(SRC_DIR)/thread_data_hc.c
+UTILS_SRCS := $(wildcard $(SRC_DIR)/utils/*.c)
 endif
 
 ifeq ($(STACK),tagged)
@@ -34,7 +36,9 @@ ifeq ($(STACK),plain)
 STACK_SRCS += $(SRC_DIR)/thread_data_plain.c
 endif
 
-SRCS := experiment.c $(STACK_SRCS)
+
+SRCS := experiment.c $(STACK_SRCS) $(UTILS_SRCS)
+
 OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
