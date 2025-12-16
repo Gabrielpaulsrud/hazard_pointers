@@ -41,7 +41,7 @@ DEPS := $(OBJS:.o=.d)
 .PHONY: x86
 
 # Build on an x86_64 Linux machine for gem5 (adds libatomic for 16-byte atomics)
-x86: LDFLAGS := $(LDFLAGS) -latomic
+x86: LDFLAGS := $(LDFLAGS) -latomic -static
 x86: $(TARGET)
 
 all: $(TARGET)

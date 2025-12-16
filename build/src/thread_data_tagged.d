@@ -1,4 +1,4 @@
-build/src/lock_free_stack_hp.o: src/lock_free_stack_hp.c include/hp.h \
+build/src/thread_data_tagged.o: src/thread_data_tagged.c \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h \
@@ -70,8 +70,7 @@ build/src/lock_free_stack_hp.o: src/lock_free_stack_hp.c include/hp.h \
  /usr/include/glib-2.0/glib/deprecated/gmain.h \
  /usr/include/glib-2.0/glib/deprecated/grel.h \
  /usr/include/glib-2.0/glib/deprecated/gthread.h \
- /usr/include/glib-2.0/glib/glib-autocleanups.h
-include/hp.h:
+ /usr/include/glib-2.0/glib/glib-autocleanups.h include/thread_data.h
 /usr/include/glib-2.0/glib.h:
 /usr/include/glib-2.0/glib/galloca.h:
 /usr/include/glib-2.0/glib/gtypes.h:
@@ -159,3 +158,4 @@ include/hp.h:
 /usr/include/glib-2.0/glib/deprecated/grel.h:
 /usr/include/glib-2.0/glib/deprecated/gthread.h:
 /usr/include/glib-2.0/glib/glib-autocleanups.h:
+include/thread_data.h:
