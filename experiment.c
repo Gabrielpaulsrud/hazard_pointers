@@ -3,6 +3,8 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <time.h>
+#include <string.h>
+#include <errno.h>
 // #include "hp.h"
 #include "lock_free_stack.h"
 // #include "tagged.h"
@@ -82,22 +84,42 @@ int main(void){
     double start_time = monotonic_seconds();
 
     for (int i = 0; i < n_push_threads; i++) {
-        pthread_create(&push_threads[i], NULL, push_task, &thread_args[i]);
+        int ret = pthread_create(&push_threads[i], NULL, push_task, &thread_args[i]);
+        if (ret != 0) {
+            fprintf(stderr, "pthread_create(push %d) failed: %s\n",
+                    i, strerror(ret));
+            exit(1);
+        }
     }
     
     for (int j = 0; j < n_pop_threads; j++) {
         int i = n_push_threads + j;
-        pthread_create(&pop_threads[j], NULL, pop_task, &thread_args[i]);
+        int ret = pthread_create(&pop_threads[j], NULL, pop_task, &thread_args[i]);
+        if (ret != 0) {
+            fprintf(stderr, "pthread_create(pop %d) failed: %s\n",
+                    j, strerror(ret));
+            exit(1);
+        }
     }
 
     for (int i = 0; i < n_push_threads; i++) {
-        pthread_join(push_threads[i], NULL);
-   	free(thread_args[i].impl_data);
+        int ret = pthread_join(push_threads[i], NULL);
+        if (ret != 0) {
+            fprintf(stderr, "pthread_join(push %d) failed: %s\n",
+                    i, strerror(ret));
+            exit(1);
+        }
+        free(thread_args[i].impl_data);
     }
     for (int j = 0; j < n_pop_threads; j++) {
-	int i = n_push_threads + j;
-        pthread_join(pop_threads[j], NULL);
-   	delete_impl_specific_thread_data(thread_args[i].impl_data);
+        int i = n_push_threads + j;
+        int ret = pthread_join(pop_threads[j], NULL);
+        if (ret != 0) {
+            fprintf(stderr, "pthread_join(pop %d) failed: %s\n",
+                    j, strerror(ret));
+            exit(1);
+        }
+        delete_impl_specific_thread_data(thread_args[i].impl_data);
     }
 
     
