@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdatomic.h>
@@ -90,7 +91,15 @@ unsigned long sum(lf_stack_t* stack){
 lf_stack_t* init_stack(void){
     //lf_stack_t* stack = calloc(1, sizeof(lf_stack_t));
     lf_stack_t* stack;
-    posix_memalign((void**)&stack, 16, sizeof(lf_stack_t));
+    //posix_memalign((void**)&stack, 16, sizeof(lf_stack_t));
+    int ret = posix_memalign((void**)&stack, 16, sizeof(lf_stack_t));
+    if (ret != 0) {
+        fprintf(stderr,
+            "posix_memalign failed (align=16, size=%zu): %s\n",
+            sizeof(lf_stack_t),
+            strerror(ret));
+        return NULL;   // or exit(1), depending on your API
+    }
     memset(stack, 0, sizeof(*stack));
     
     
