@@ -55,3 +55,7 @@ lf_stack_t* init_stack(void){
     stack->top = NULL;
     return stack;
 }
+
+void delete_stack(lf_stack_t* stack){
+    return;
+}

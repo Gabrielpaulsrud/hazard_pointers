@@ -3,9 +3,9 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <time.h>
-#include "hp.h"
+// #include "hp.h"
 #include "lock_free_stack.h"
-#include "tagged.h"
+// #include "tagged.h"
 #include "thread_data.h"
 
 #define TEST
@@ -60,15 +60,15 @@ int main(void){
     thread_arg_t thread_args[n_pop_threads+n_push_threads];
 
     _Atomic unsigned long pop_sum = 0;
-    void** hp_record = init_hp(n_push_threads + n_pop_threads, K);
+    // void** hp_record = init_hp(n_push_threads + n_pop_threads, K);
 
     // Set thread args
     for (int i = 0; i < n_push_threads + n_pop_threads; i++){
         thread_args[i].stack = stack;
         thread_args[i].pop_sum = &pop_sum;
         thread_data_init_args_t init = {
-            .hps = hp_record,
-            .rlist = NULL,
+            // .hps = hp_record,
+            // .rlist = NULL,
             .idx = i,
             .r = 0,
             .max_r = MAX_NODES_IN_RETIRE,
@@ -101,7 +101,7 @@ int main(void){
     }
 
     
-    free(hp_record);
+    // free(hp_record);
     #ifdef TEST
     unsigned long remainder = sum(stack);
     unsigned long expected_sum = (unsigned long)n_push_threads * (unsigned long)PUSHES * (PUSHES - 1) / 2;

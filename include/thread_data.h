@@ -1,7 +1,7 @@
-#include <glib.h>
+// #include <glib.h>
 typedef struct thread_data_init_args {
     void** hps;
-    GSList* rlist;
+    // GSList* rlist;
     int idx;
     int r;
     int max_r;
