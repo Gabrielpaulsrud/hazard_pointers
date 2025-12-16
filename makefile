@@ -58,7 +58,7 @@ dbg: debug
 
 asan: CFLAGS := $(filter-out -O2,$(CFLAGS))
 asan: CFLAGS += -O1 -g $(SANFLAGS)
-asan: LDFLAGS += -fsanitize=address
+asan: LDFLAGS += -fsanitize=address -latomic
 asan: clean $(TARGET)
 
 $(TARGET): $(OBJS)
