@@ -10,3 +10,6 @@ typedef struct thread_data_init_args {
 } thread_data_init_args_t;
 
 void* create_impl_specific_thread_data(thread_data_init_args_t args);
+
+void delete_impl_specific_thread_data(void* impl_data);
+

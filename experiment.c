@@ -92,12 +92,16 @@ int main(void){
 
     for (int i = 0; i < n_push_threads; i++) {
         pthread_join(push_threads[i], NULL);
+   	free(thread_args[i].impl_data);
     }
-    for (int i = 0; i < n_pop_threads; i++) {
-        pthread_join(pop_threads[i], NULL);
+    for (int j = 0; j < n_pop_threads; j++) {
+	int i = n_push_threads + j;
+        pthread_join(pop_threads[j], NULL);
+   	delete_impl_specific_thread_data(thread_args[i].impl_data);
     }
-    
 
+    
+    free(hp_record);
     #ifdef TEST
     unsigned long remainder = sum(stack);
     unsigned long expected_sum = (unsigned long)n_push_threads * (unsigned long)PUSHES * (PUSHES - 1) / 2;
@@ -112,5 +116,6 @@ int main(void){
     #endif
     double end_time = monotonic_seconds();
     printf("Runtime: %.6f seconds\n", end_time - start_time);
+    delete_stack(stack);
     return 0;
 }

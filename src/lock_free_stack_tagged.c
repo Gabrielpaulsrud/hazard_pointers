@@ -96,3 +96,14 @@ lf_stack_t* init_stack(void){
     atomic_init(&stack->top, p);
     return stack;
 }
+
+void delete_stack(lf_stack_t* stack){
+    pointer_t top = atomic_load(&stack->top);
+    node_t* cur = top.node;
+    while (cur) {
+        node_t* next = cur->next;
+        free(cur);
+        cur = next;
+    }
+    free(stack);
+}

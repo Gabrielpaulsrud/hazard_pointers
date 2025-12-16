@@ -12,8 +12,8 @@ SANFLAGS := -fsanitize=address -fno-omit-frame-pointer
 GLIB_CFLAGS := $(shell pkg-config --cflags glib-2.0)
 GLIB_LIBS   := $(shell pkg-config --libs glib-2.0)
 
-CFLAGS   := -std=c11 $(WARNINGS) -O3 -MMD -MP $(THREADS) -Iinclude $(GLIB_CFLAGS)
-LDFLAGS  := $(THREADS) $(GLIB_LIBS)
+CFLAGS   := -std=c11 $(WARNINGS) -O3 -MMD -MP $(THREADS) -Iinclude $(GLIB_CFLAGS) $(CFLAGS_EXTRA)
+LDFLAGS  := $(THREADS) $(GLIB_LIBS) $(LDFLAGS_EXTRA)
 
 STACK_SRCS := $(SRC_DIR)/lock_free_stack_$(STACK).c
 STACK_DEFS :=
@@ -52,9 +52,6 @@ run: $(TARGET)
 debug: CFLAGS := $(filter-out -O2,$(CFLAGS))
 debug: CFLAGS += -O0 -g -fno-omit-frame-pointer
 debug: clean $(TARGET)
-
-dbg: debug
-	lldb $(TARGET)
 
 asan: CFLAGS := $(filter-out -O2,$(CFLAGS))
 asan: CFLAGS += -O1 -g $(SANFLAGS)
