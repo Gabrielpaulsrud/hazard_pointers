@@ -12,7 +12,7 @@
 
 #define TEST
 
-int PUSHES = 100000;
+int PUSHES = 10;
 int POPS =   100000;
 int n_push_threads = 1;
 int n_pop_threads = 0;
