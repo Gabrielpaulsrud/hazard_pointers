@@ -91,7 +91,12 @@ unsigned long sum(lf_stack_t* stack){
 }
 
 lf_stack_t* init_stack(void){
-    lf_stack_t* stack = calloc(1, sizeof(lf_stack_t));
+    //lf_stack_t* stack = calloc(1, sizeof(lf_stack_t));
+    lf_stack_t* stack;
+    posix_memalign((void**)&stack, 16, sizeof(lf_stack_t));
+    memset(stack, 0, sizeof(*stack));
+    
+    
     pointer_t p = { .node = NULL, .num = 0 };
     atomic_init(&stack->top, p);
     return stack;
