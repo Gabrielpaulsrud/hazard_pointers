@@ -48,7 +48,7 @@ DEPS := $(OBJS:.o=.d)
 .DEFAULT_GOAL := all
 
 # Build on an x86_64 Linux machine for gem5 (adds libatomic for 16-byte atomics)
-x86: LDFLAGS := $(LDFLAGS) -latomic -static
+x86: LDFLAGS := $(LDFLAGS) -latomic
 x86: $(TARGET)
 
 all: $(TARGET)

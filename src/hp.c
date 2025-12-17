@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "hp.h"
+#include "utils/list.h"
+
 
 void** init_hp(int N, int K){
     //N = number of threads
