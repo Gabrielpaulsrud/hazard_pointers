@@ -1,7 +1,8 @@
 // #include <glib.h>
+#include "utils/list.h"
 typedef struct thread_data_init_args {
     void** hps;
-    // GSList* rlist;
+    list_node_t* rlist;
     int idx;
     int r;
     int max_r;

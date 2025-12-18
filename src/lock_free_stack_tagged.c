@@ -8,6 +8,11 @@
 
 
 
+typedef struct pointer_t {
+    node_t* node;
+    long num;
+} pointer_t;
+
 typedef struct lf_stack_t {
     _Atomic pointer_t top;
 } lf_stack_t;

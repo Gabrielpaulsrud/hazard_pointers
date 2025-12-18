@@ -20,19 +20,22 @@ STACK_DEFS :=
 UTILS_SRCS :=
 
 ifeq ($(STACK),hp)
+STACK_DEFS += -DSTACK_HP
 STACK_SRCS += $(SRC_DIR)/hp.c
 # STACK_DEFS += -DUSE_HP_STACK
-STACK_SRCS += $(SRC_DIR)/thread_data_hc.c
+STACK_SRCS += $(SRC_DIR)/thread_data_hp.c
 UTILS_SRCS := $(wildcard $(SRC_DIR)/utils/*.c)
 endif
 
 ifeq ($(STACK),tagged)
+STACK_DEFS += -DSTACK_TAGGED
 # STACK_DEFS += -DUSE_TAGGED_STACK
 STACK_SRCS += $(SRC_DIR)/thread_data_tagged.c
 # STACK_SRCS += $(SRC_DIR)/h.c
 endif
 
 ifeq ($(STACK),plain)
+STACK_DEFS += -DSTACK_PLAIN
 STACK_SRCS += $(SRC_DIR)/thread_data_plain.c
 endif
 
@@ -56,11 +59,11 @@ all: $(TARGET)
 run: $(TARGET)
 	$(TARGET) $(ARGS)
 
-debug: CFLAGS := $(filter-out -O2,$(CFLAGS))
+debug: CFLAGS := $(filter-out -O3,$(CFLAGS))
 debug: CFLAGS += -O0 -g -fno-omit-frame-pointer
 debug: clean $(TARGET)
 
-asan: CFLAGS := $(filter-out -O2,$(CFLAGS))
+asan: CFLAGS := $(filter-out -O3,$(CFLAGS))
 asan: CFLAGS += -O1 -g $(SANFLAGS)
 asan: LDFLAGS += -fsanitize=address -latomic
 asan: clean $(TARGET)

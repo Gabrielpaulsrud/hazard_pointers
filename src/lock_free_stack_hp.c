@@ -2,13 +2,10 @@
 #include <stdio.h>
 #include <stdatomic.h>
 #include "hp.h"
+#include "lock_free_stack.h"
 
 #define FREE 1
 
-typedef struct node_t {
-    int key;
-    struct node_t* next;
-} node_t;
 
 typedef struct lf_stack_t {
     _Atomic(node_t*) top;
@@ -74,4 +71,15 @@ lf_stack_t* init_stack(void){
     lf_stack_t* stack = malloc(sizeof(lf_stack_t));
     stack->top = NULL;
     return stack;
+}
+
+void delete_stack(lf_stack_t* stack){
+    return;
+    node_t* top = atomic_load(&stack->top);
+    while (top) {
+        node_t* next = top->next;
+        free(top);
+        top = next;
+    }
+    free(stack);
 }
