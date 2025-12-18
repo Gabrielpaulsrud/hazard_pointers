@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "hp.h"
 #include "thread_data.h"
+#include "utils/list.h"
+
 
 void* create_impl_specific_thread_data(thread_data_init_args_t args) {
     hp_thread_data_t* hpd = calloc(1, sizeof(*hpd));
@@ -20,13 +22,15 @@ void* create_impl_specific_thread_data(thread_data_init_args_t args) {
 }
 
 void delete_impl_specific_thread_data(void* impl_data) {
-    return;
     if (!impl_data) return;
     hp_thread_data_t* hpd = (hp_thread_data_t*) impl_data;
 
-
-    list_free(hpd->rlist);
+    // list_free(hpd->rlist);
+    for (list_node_t* it = hpd->rlist; it; ) {
+        list_node_t* next = it->next;
+        free(it->data);          // <-- the retired node_t*
+        free(it);                 // or list node free
+        it = next;
+    }
     free(hpd);
-
-    // free(freelistp);
 }

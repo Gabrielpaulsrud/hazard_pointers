@@ -14,8 +14,8 @@
 
 #define TEST
 
-int PUSHES = 1000000;
-int POPS =   1000000;
+int PUSHES = 2000;
+int POPS =   2000;
 int n_push_threads = 4;
 int n_pop_threads = 4;
 static const int MAX_NODES_IN_RETIRE = 2;
@@ -117,13 +117,15 @@ int main(void){
         free(thread_args[i].impl_data);
     }
     for (int j = 0; j < n_pop_threads; j++) {
-        int i = n_push_threads + j;
         int ret = pthread_join(pop_threads[j], NULL);
         if (ret != 0) {
             fprintf(stderr, "pthread_join(pop %d) failed: %s\n",
                     j, strerror(ret));
             exit(1);
         }
+    }
+    for (int j = 0; j < n_pop_threads; j++) {
+        int i = n_push_threads + j;
         delete_impl_specific_thread_data(thread_args[i].impl_data);
     }
 

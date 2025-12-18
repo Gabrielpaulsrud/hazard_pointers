@@ -56,7 +56,9 @@ void scan(hp_thread_data_t* hpd){
         else {
             free(tmp_list->data);
         }
-        tmp_list = tmp_list->next;
+        list_node_t* next = tmp_list->next;
+        free(tmp_list);
+        tmp_list = next;
     }
 
     // list_free(tmp_list);

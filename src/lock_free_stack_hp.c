@@ -30,16 +30,16 @@ int pop(lf_stack_t* stack, void* arg){
         if (old == NULL) {
             return 0;
         }
-        hpd->hps[hpd->idx] = old;
-        if(hpd->hps[hpd->idx] != atomic_load(&stack->top)) {
+        hpd->hps[hpd->idx*hpd->K] = old;
+        if(hpd->hps[hpd->idx*hpd->K] != atomic_load(&stack->top)) {
             continue;
         }
         next = old->next;
-        hpd->hps[hpd->idx+1] = next;
+        hpd->hps[hpd->idx*hpd->K+1] = next;
 
         //Why would this be needed?
         // It says in the paper...
-        if(hpd->hps[hpd->idx] != atomic_load(&stack->top)) {
+        if(hpd->hps[hpd->idx*hpd->K] != atomic_load(&stack->top)) {
             continue;
         }
         
@@ -74,7 +74,6 @@ lf_stack_t* init_stack(void){
 }
 
 void delete_stack(lf_stack_t* stack){
-    return;
     node_t* top = atomic_load(&stack->top);
     while (top) {
         node_t* next = top->next;
