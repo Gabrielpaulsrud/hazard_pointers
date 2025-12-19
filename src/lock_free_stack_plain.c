@@ -4,6 +4,8 @@
 
 #define FREE 1
 
+int n_times_in_loop = 0;
+
 typedef struct elem_t {
     int key;
     struct elem_t* next;
@@ -27,8 +29,9 @@ int pop(lf_stack_t* stack, void* arg){
     int key;
     
     old = atomic_load(&stack->top);
-    while(old != NULL && !atomic_compare_exchange_weak(&stack->top, &old, old->next))
-    ;
+    while(old != NULL && !atomic_compare_exchange_weak(&stack->top, &old, old->next)){
+        n_times_in_loop++;
+    }
     if (old == NULL) {
         return 0;
     }
@@ -58,5 +61,6 @@ lf_stack_t* init_stack(void){
 
 void delete_stack(lf_stack_t* stack){
     (void) stack;
+    printf("%d fails\n", n_times_in_loop);
     return;
 }

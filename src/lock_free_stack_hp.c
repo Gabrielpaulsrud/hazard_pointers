@@ -4,8 +4,8 @@
 #include "hp.h"
 #include "lock_free_stack.h"
 
-#define FREE 1
-
+#include <locale.h>
+_Atomic long long n_cas = 0;
 
 typedef struct lf_stack_t {
     _Atomic(node_t*) top;
@@ -16,8 +16,11 @@ void push(lf_stack_t* stack, int key, void* arg){
     node_t* a = malloc(sizeof(node_t));
     a->key=key;
     a->next = atomic_load(&stack->top);
-    while(!atomic_compare_exchange_weak(&stack->top, &a->next, a))
-        ;
+    do {
+        #ifdef TEST
+            atomic_fetch_add(&n_cas, 1);
+        #endif
+    } while(!atomic_compare_exchange_weak(&stack->top, &a->next, a));
 }
 
 int pop(lf_stack_t* stack, void* arg){
@@ -42,17 +45,18 @@ int pop(lf_stack_t* stack, void* arg){
         if(hpd->hps[hpd->idx*hpd->K] != atomic_load(&stack->top)) {
             continue;
         }
-        
+        #ifdef TEST
+            atomic_fetch_add(&n_cas, 1);
+        #endif
         if (atomic_compare_exchange_weak(&stack->top, &old, next)){
             break;
         }
 
     }
-    
     key = old->key;
     retireNode(old, hpd);
-    hpd->hps[hpd->idx] = NULL;
-    hpd->hps[hpd->idx+1] = NULL;
+    hpd->hps[hpd->idx*hpd->K] = NULL;
+    hpd->hps[hpd->idx*hpd->K+1] = NULL;
     return key;
 }
 
@@ -74,6 +78,11 @@ lf_stack_t* init_stack(void){
 }
 
 void delete_stack(lf_stack_t* stack){
+    setlocale(LC_NUMERIC, "");
+    #ifdef TEST
+    printf("%'llu cas\n", n_cas);
+    #endif
+
     node_t* top = atomic_load(&stack->top);
     while (top) {
         node_t* next = top->next;

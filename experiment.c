@@ -11,11 +11,13 @@
 #include "lock_free_stack.h"
 // #include "tagged.h"
 #include "thread_data.h"
+#include <locale.h>
 
-#define TEST
 
-int PUSHES = 2000;
-int POPS =   2000;
+// #define TEST
+
+int PUSHES = 10000000;
+int POPS =   10000000;
 int n_push_threads = 4;
 int n_pop_threads = 4;
 static const int MAX_NODES_IN_RETIRE = 2;
@@ -88,6 +90,8 @@ int main(void){
 
     double start_time = monotonic_seconds();
 
+    setlocale(LC_NUMERIC, "");
+
     for (int i = 0; i < n_push_threads; i++) {
         int ret = pthread_create(&push_threads[i], NULL, push_task, &thread_args[i]);
         if (ret != 0) {
@@ -138,15 +142,18 @@ int main(void){
     unsigned long expected_sum = (unsigned long)n_push_threads * (unsigned long)PUSHES * (PUSHES - 1) / 2;
     if (expected_sum != pop_sum + remainder) {
         printf("INVARIANT FAILED\n");
-        printf("pop sum   %lu\nstack sum %lu\nexpected  %lu\n", pop_sum, remainder, expected_sum);
+        printf("pop sum   %'lu\nstack sum %'lu\nexpected  %'lu\n", pop_sum, remainder, expected_sum);
     }
     else {
-        printf("PASSED\nTotal sum of pushes %lu\n", pop_sum+remainder);
-        printf("Popped: %lu\nLeft in stack: %lu\n", pop_sum, remainder);
+        printf("PASSED\nTotal sum of pushes %'lu\n", pop_sum+remainder);
+        printf("Popped: %'lu\nLeft in stack: %'lu\n", pop_sum, remainder);
     }
     #endif
     double end_time = monotonic_seconds();
     printf("Runtime: %.6f seconds\n", end_time - start_time);
+
+    printf("Taotal number of pushes + pops %'llu\n", (unsigned long long)n_pop_threads*POPS+n_push_threads*PUSHES);
     delete_stack(stack);
+
     return 0;
 }

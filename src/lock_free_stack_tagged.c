@@ -5,8 +5,8 @@
 // #include "tagged.h"
 #include <string.h>
 #include "lock_free_stack.h"
-
-
+#include <locale.h>
+_Atomic long long n_cas = 0;
 
 typedef struct pointer_t {
     node_t* node;
@@ -58,7 +58,10 @@ void push(lf_stack_t* s, int key, void* arg) {
     do {
         new.node->next = old.node;
         new.num = old.num+1;
-    } while (!atomic_compare_exchange_weak(&s->top, &old, new));
+        #ifdef TEST
+            atomic_fetch_add(&n_cas, 1);
+        #endif
+        } while (!atomic_compare_exchange_weak(&s->top, &old, new));
 }
 
 int pop(lf_stack_t* s, void* arg){
@@ -70,10 +73,14 @@ int pop(lf_stack_t* s, void* arg){
     old = atomic_load(&s->top);
 
     do {
-        if (old.node == NULL)
+        if (old.node == NULL){
             return 0;
+        }
         new.num = old.num+1;
         new.node = old.node->next;
+        #ifdef TEST
+            atomic_fetch_add(&n_cas, 1);
+        #endif
     } while(!atomic_compare_exchange_weak(&s->top, &old, new));
     // *rlist = g_slist_prepend(*rlist, old.node);
     old.node->next = *rlist;
@@ -114,6 +121,10 @@ lf_stack_t* init_stack(void){
 }
 
 void delete_stack(lf_stack_t* stack){
+    setlocale(LC_NUMERIC, "");
+    #ifdef TEST
+    printf("%'llu cas\n", n_cas);
+    #endif
     pointer_t top = atomic_load(&stack->top);
     node_t* cur = top.node;
     while (cur) {

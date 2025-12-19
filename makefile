@@ -1,5 +1,6 @@
 CC          := gcc
 STACK       ?= plain
+TEST       ?= true
 SRC_DIR     := src
 BUILD_DIR   := build
 TARGET_NAME := experiment_$(STACK)
@@ -40,12 +41,16 @@ STACK_SRCS += $(SRC_DIR)/thread_data_plain.c
 endif
 
 
+ifeq ($(TEST), true)
+CFLAGS += -DTEST
+endif
+
 SRCS := experiment.c $(STACK_SRCS) $(UTILS_SRCS)
 
 OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
-.PHONY: all run clean debug dbg asan
+.PHONY: all run clean debug dbg asan profile
 .PHONY: x86
 
 .DEFAULT_GOAL := all
@@ -67,6 +72,11 @@ asan: CFLAGS := $(filter-out -O3,$(CFLAGS))
 asan: CFLAGS += -O1 -g $(SANFLAGS)
 asan: LDFLAGS += -fsanitize=address -latomic
 asan: clean $(TARGET)
+
+profile: CFLAGS := $(filter-out -O3,$(CFLAGS))
+profile: CFLAGS += -O1 -g -fno-omit-frame-pointer -fno-inline
+profile: clean $(TARGET)
+
 
 $(TARGET): $(OBJS)
 	@mkdir -p $(dir $@)
