@@ -20,7 +20,7 @@ int PUSHES = 10000000;
 int POPS =   10000000;
 int n_push_threads = 4;
 int n_pop_threads = 4;
-static const int MAX_NODES_IN_RETIRE = 2;
+static const int MAX_NODES_IN_RETIRE = 10;
 static const int K = 2; //Max number of hazard pointers used by a thread
 
 typedef struct {

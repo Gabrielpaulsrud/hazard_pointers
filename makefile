@@ -5,6 +5,7 @@ SRC_DIR     := src
 BUILD_DIR   := build
 TARGET_NAME := experiment_$(STACK)
 TARGET      := $(BUILD_DIR)/$(TARGET_NAME)
+ASM_DIR     := $(BUILD_DIR)/asm
 
 WARNINGS := -Wall -Wextra -Wpedantic
 THREADS  := -pthread
@@ -50,7 +51,7 @@ SRCS := experiment.c $(STACK_SRCS) $(UTILS_SRCS)
 OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
-.PHONY: all run clean debug dbg asan profile
+.PHONY: all run clean debug dbg asan profile asm disasm
 .PHONY: x86
 
 .DEFAULT_GOAL := all
@@ -77,6 +78,27 @@ profile: CFLAGS := $(filter-out -O3,$(CFLAGS))
 profile: CFLAGS += -O1 -g -fno-omit-frame-pointer -fno-inline
 profile: clean $(TARGET)
 
+# Generate per-source annotated assembly (.s)
+asm: CFLAGS := $(filter-out -O3,$(CFLAGS))
+asm: CFLAGS += -O0 -g -fno-omit-frame-pointer -fno-inline -fverbose-asm
+asm: clean
+	@mkdir -p $(ASM_DIR)
+	$(CC) $(CFLAGS) $(STACK_DEFS) -S -o $(ASM_DIR)/lock_free_stack_$(STACK).s $(SRC_DIR)/lock_free_stack_$(STACK).c
+	@if [ -f $(SRC_DIR)/hp.c ]; then \
+		$(CC) $(CFLAGS) $(STACK_DEFS) -S -o $(ASM_DIR)/hp.s $(SRC_DIR)/hp.c; \
+	fi
+	@if [ -f $(SRC_DIR)/thread_data_$(STACK).c ]; then \
+		$(CC) $(CFLAGS) $(STACK_DEFS) -S -o $(ASM_DIR)/thread_data_$(STACK).s $(SRC_DIR)/thread_data_$(STACK).c; \
+	fi
+	@echo "Wrote annotated assembly to $(ASM_DIR)/"
+
+# Generate a mixed C/asm disassembly from the final binary.
+disasm: CFLAGS := $(filter-out -O3,$(CFLAGS))
+disasm: CFLAGS += -O0 -g -fno-omit-frame-pointer -fno-inline -fverbose-asm
+disasm: clean $(TARGET)
+	objdump -d -S --no-show-raw-insn -Mintel $(TARGET) > $(BUILD_DIR)/$(TARGET_NAME).dump
+	objdump -d -S $(TARGET) > $(BUILD_DIR)/$(TARGET_NAME).dump
+	@echo "Wrote disassembly to $(BUILD_DIR)/$(TARGET_NAME).dump"
 
 $(TARGET): $(OBJS)
 	@mkdir -p $(dir $@)
